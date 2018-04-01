@@ -12,13 +12,18 @@ class CinderProjectApp : public App {
   public:
 	void setup() override;
 	void mouseDown( MouseEvent event ) override;
+	void mouseMove(MouseEvent event) override;
 	void update() override;
 	void draw() override;
 
 private:
 	void setupParticleSystem(ParticleSystem&);
+	void setupForces();
 
 	ParticleSystem mParticleSystem;
+
+	vec2 attrPosition;
+	float attrFactor, repulsionFactor, repulsionRadius;
 };
 
 void CinderProjectApp::setup()
@@ -26,6 +31,15 @@ void CinderProjectApp::setup()
 	setWindowSize(800, 600);
 
 	setupParticleSystem(mParticleSystem);
+	setupForces();
+}
+
+void CinderProjectApp::setupForces()
+{
+	attrPosition = getWindowCenter();
+	attrFactor = 0.05f;
+	repulsionRadius = 100.f;
+	repulsionFactor = -5.f;
 }
 
 void CinderProjectApp::setupParticleSystem(ParticleSystem &ps)
@@ -45,10 +59,28 @@ void CinderProjectApp::setupParticleSystem(ParticleSystem &ps)
 
 void CinderProjectApp::mouseDown( MouseEvent event )
 {
+	for (std::vector<Particle*>::iterator it = mParticleSystem.particles.begin(); it != mParticleSystem.particles.end(); ++it)
+	{
+		vec2 repulsionForce = (*it)->position - vec2(event.getPos());
+		repulsionForce *= math<float>::max(0.f, repulsionRadius - repulsionForce.size());
+		(*it)->forces += repulsionForce;
+	}
+}
+
+void CinderProjectApp::mouseMove(MouseEvent event)
+{
+	attrPosition.x = event.getPos().x;
+	attrPosition.y = event.getPos().y;
 }
 
 void CinderProjectApp::update()
 {
+	for (std::vector<Particle*>::iterator it = mParticleSystem.particles.begin(); it != mParticleSystem.particles.end(); ++it)
+	{
+		vec2 attrForce = attrPosition - (*it)->position;
+		attrForce *= attrFactor;
+		(*it)->forces += attrForce;
+	}
 	mParticleSystem.update();
 }
 
