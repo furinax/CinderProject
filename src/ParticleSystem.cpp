@@ -1,4 +1,5 @@
 #include "ParticleSystem.h"
+#include "cinder/app/App.h"
 
 ParticleSystem::~ParticleSystem(){
 	for (std::vector<Particle*>::iterator it = particles.begin();
@@ -13,7 +14,9 @@ void ParticleSystem::update(){
 	for (std::vector<Particle*>::iterator it = particles.begin();
 		it != particles.end();
 		++it){
+		(*it)->flock(particles);
 		(*it)->update();
+		(*it)->borders(ci::app::getWindowWidth(), ci::app::getWindowHeight());
 	}
 }
 

@@ -11,10 +11,20 @@ class Particle
 		void update();
 		void draw();
 
-	ci::vec2 position, prevPosition;
-	ci::vec2 forces;
+		void flock(std::vector<Particle*>& particles);
+		ci::vec2 steer(ci::vec2 target, bool slowdown);
+		void borders(float width, float height);
+		ci::vec2 separate(std::vector<Particle*> & particles);
+		ci::vec2 align(std::vector<Particle*>& particles);
+		ci::vec2 cohesion(std::vector<Particle*>& particles);
 
-	float radius;
-	float mass;
-	float drag;
+		ci::vec2 position, prevPosition;
+		ci::vec2 forces;
+		ci::vec2 velocity;
+
+		float radius;
+		float mass;
+		float drag;
+		float maxspeed;
+		float maxforce;
 };

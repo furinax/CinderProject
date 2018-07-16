@@ -39,19 +39,19 @@ void CinderProjectApp::setupForces()
 	attrPosition = getWindowCenter();
 	attrFactor = 0.05f;
 	repulsionRadius = 100.f;
-	repulsionFactor = -5.f;
+	repulsionFactor = -.05f;
 }
 
 void CinderProjectApp::setupParticleSystem(ParticleSystem &ps)
 {
-	int numParticles = 100;
+	int numParticles = 50;
 	for (int i = 0; i < numParticles; i++)
 	{
 		float x = ci::randFloat(0.f, getWindowWidth());
 		float y = ci::randFloat(0.f, getWindowHeight());
-		float radius = ci::randFloat(5.f, 15.f);
-		float mass = radius * radius;
-		float drag = 0.95f;
+		float radius = 5.f;
+		float mass = 1.f;
+		float drag = 1.f;
 		Particle *particle = new Particle(vec2(x, y), radius, mass, drag);
 		ps.addParticle(particle);
 	}
@@ -62,7 +62,7 @@ void CinderProjectApp::mouseDown( MouseEvent event )
 	for (std::vector<Particle*>::iterator it = mParticleSystem.particles.begin(); it != mParticleSystem.particles.end(); ++it)
 	{
 		vec2 repulsionForce = (*it)->position - vec2(event.getPos());
-		repulsionForce *= math<float>::max(0.f, repulsionRadius - repulsionForce.size());
+		repulsionForce *= repulsionFactor * math<float>::max(0.f, repulsionRadius - repulsionForce.size());
 		(*it)->forces += repulsionForce;
 	}
 }
@@ -75,12 +75,6 @@ void CinderProjectApp::mouseMove(MouseEvent event)
 
 void CinderProjectApp::update()
 {
-	for (std::vector<Particle*>::iterator it = mParticleSystem.particles.begin(); it != mParticleSystem.particles.end(); ++it)
-	{
-		vec2 attrForce = attrPosition - (*it)->position;
-		attrForce *= attrFactor;
-		(*it)->forces += attrForce;
-	}
 	mParticleSystem.update();
 }
 
