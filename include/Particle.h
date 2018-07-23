@@ -12,7 +12,7 @@ class Particle
 		void draw();
 
 		void flock(std::vector<Particle*>& particles);
-		ci::vec2 steer(ci::vec2 target, bool slowdown);
+		ci::vec2 steer(ci::vec2 target);
 		void borders(float width, float height);
 		ci::vec2 separate(std::vector<Particle*> & particles);
 		ci::vec2 align(std::vector<Particle*>& particles);

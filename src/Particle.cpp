@@ -35,70 +35,61 @@ void Particle::draw()
 void Particle::flock(std::vector<Particle*>& particles)
 {
 	ci::vec2 acc = ci::vec2(0);
-	//acc = (position - ci::app::getWindowCenter()) * -.01f;
 	acc += separate(particles);
 	acc += align(particles);
 	acc += cohesion(particles)*.1f;
-
 
 	velocity += acc;
 	
 	return;
 }
 
-ci::vec2 Particle::steer(ci::vec2 target, bool slowdown)
+ci::vec2 Particle::steer(ci::vec2 target)
 {
-	ci::vec2 x;
+	ci::vec2 steerVector;
 	ci::vec2 desired = target - position;
 	float d = glm::length(desired);
 	if (d > 0)
 	{
 		desired = glm::normalize(desired);
-		if ((slowdown) && (d < 100.0))
-			desired *= (maxspeed * (d / 100.0));
-		else
-			desired *= maxspeed;
-		x = desired - velocity;
-		x = glm::clamp(ci::vec2(0), ci::vec2(maxforce), x);
-	}
-	else
-	{
-		x = ci::vec2(0);
+		desired *= std::max(0.f, std::min(maxspeed * (d / 100.f), maxspeed));
+		steerVector = glm::clamp(ci::vec2(0), ci::vec2(maxforce), desired - velocity);
 	}
 
-	return x;
+	return steerVector;
 }
 
 ci::vec2 Particle::separate(std::vector<Particle*> & particles)
 {
-	ci::vec2 x = (position - ci::app::getWindowCenter()) * -.005f;
-	x = glm::rotate(x, glm::radians(-45.f));
-
+	ci::vec2 averageVec = (position - ci::app::getWindowCenter()) * -.005f;
+	
+	averageVec = glm::rotate(averageVec, glm::radians(-45.f));
 	float targetSeparation = 30.f;
-	int count = 0;
-	for (std::vector<Particle*>::iterator it = particles.begin(); it != particles.end(); ++it) {
-		ci::vec2 diffVec = position - (*it)->position;
-		float l = glm::length(diffVec);
-		if (l > 0 && l < targetSeparation)
-		{
-			x += glm::normalize(diffVec) / l;
-			count++;
-		}
-	}
 
-	if (count > 0) {
-		x /= (float)count;
-	}
-
-	if (glm::length(x) > 0)
+	std::vector<Particle*> particlesWithinDistance;
+	auto it = std::copy_if(particles.begin(), particles.end(), std::back_inserter(particlesWithinDistance), [&](Particle* p){
+		return glm::distance(position, p->position) < targetSeparation; });
+	
+	if (particlesWithinDistance.size() == 0)
+		return averageVec;
+	
+	averageVec = std::accumulate(particlesWithinDistance.begin(), particlesWithinDistance.end(), averageVec, [=](ci::vec2 x, Particle* p){
+		ci::vec2 diffVec = position - p->position;
+		if (glm::length(diffVec) > 0)
+			x += glm::normalize(diffVec) / glm::length(diffVec);
+		return x;
+	});
+	averageVec /= (float)particlesWithinDistance.size();
+	
+	
+	if (glm::length(averageVec) > 0)
 	{
-		x = glm::normalize(x);
-		x *-maxspeed;
-		x -= velocity;
-		x = glm::clamp(ci::vec2(0), ci::vec2(maxforce), x);
+		averageVec = glm::normalize(averageVec);
+		averageVec *-maxspeed;
+		averageVec -= velocity;
+		averageVec = glm::clamp(ci::vec2(0), ci::vec2(maxforce), averageVec); 
 	}
-
-	return x;
+	return averageVec;
 }
 
 ci::vec2 Particle::align(std::vector<Particle*>& particles)
@@ -114,11 +105,11 @@ ci::vec2 Particle::cohesion(std::vector<Particle*>& particles)
 	std::vector<Particle*> particlesWithinDistance;
 	auto it = std::copy_if(particles.begin(), particles.end(), std::back_inserter(particlesWithinDistance), [&](Particle* p){
 							float d = glm::distance(position, p->position);
-							return d > 0 && d < neighborDist; });
+							return d < neighborDist; });
 
 	averageVec = std::accumulate(particlesWithinDistance.begin(), particlesWithinDistance.end(), ci::vec2(0), [](ci::vec2 x, Particle* p){ x += p->position; return x; });
 
-	return particlesWithinDistance.size() > 0 ? steer(averageVec / (float)particlesWithinDistance.size(), false) : ci::vec2(0);
+	return particlesWithinDistance.size() > 0 ? steer(averageVec / (float)particlesWithinDistance.size()) : ci::vec2(0);
 }
 
 void Particle::borders(float width, float height)
