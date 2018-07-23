@@ -1,5 +1,7 @@
 #include "Particle.h"
 #include "cinder/app/App.h"
+#include <algorithm>
+#include <numeric>
 
 Particle::Particle(const ci::vec2 & position, float radius, float mass, float drag)
 {
@@ -106,23 +108,17 @@ ci::vec2 Particle::align(std::vector<Particle*>& particles)
 
 ci::vec2 Particle::cohesion(std::vector<Particle*>& particles)
 {
-	ci::vec2 x;
+	ci::vec2 averageVec;
 	float neighborDist = 50.f;
-	int count = 0;
-	for (std::vector<Particle*>::iterator it = particles.begin(); it != particles.end(); ++it)
-	{
-		float d = glm::distance(position, (*it)->position);
-		if (d > 0 && d < neighborDist) {
-			x += (*it)->position;
-			count++;
-		}
-	}
 
-	if (count > 0) {
-		x /= (float)count;
-		return steer(x, false);
-	}
-	return ci::vec2(0);
+	std::vector<Particle*> particlesWithinDistance;
+	auto it = std::copy_if(particles.begin(), particles.end(), std::back_inserter(particlesWithinDistance), [&](Particle* p){
+							float d = glm::distance(position, p->position);
+							return d > 0 && d < neighborDist; });
+
+	averageVec = std::accumulate(particlesWithinDistance.begin(), particlesWithinDistance.end(), ci::vec2(0), [](ci::vec2 x, Particle* p){ x += p->position; return x; });
+
+	return particlesWithinDistance.size() > 0 ? steer(averageVec / (float)particlesWithinDistance.size(), false) : ci::vec2(0);
 }
 
 void Particle::borders(float width, float height)

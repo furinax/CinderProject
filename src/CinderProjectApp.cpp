@@ -3,6 +3,7 @@
 #include "cinder/gl/gl.h"
 #include "ParticleSystem.h"
 #include "cinder/Rand.h"
+#include "boost/range/irange.hpp"
 
 using namespace ci;
 using namespace ci::app;
@@ -44,8 +45,7 @@ void CinderProjectApp::setupForces()
 
 void CinderProjectApp::setupParticleSystem(ParticleSystem &ps)
 {
-	int numParticles = 50;
-	for (int i = 0; i < numParticles; i++)
+	for (auto i : boost::irange(0, 50))
 	{
 		float x = ci::randFloat(0.f, getWindowWidth());
 		float y = ci::randFloat(0.f, getWindowHeight());

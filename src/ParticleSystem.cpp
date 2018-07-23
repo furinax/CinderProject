@@ -2,30 +2,20 @@
 #include "cinder/app/App.h"
 
 ParticleSystem::~ParticleSystem(){
-	for (std::vector<Particle*>::iterator it = particles.begin();
-		it != particles.end();
-		++it){
-		delete *it;
-	}
+	for_each(particles.begin(), particles.end(), [](Particle* p) {delete p; });
 	particles.clear();
 }
 
 void ParticleSystem::update(){
-	for (std::vector<Particle*>::iterator it = particles.begin();
-		it != particles.end();
-		++it){
-		(*it)->flock(particles);
-		(*it)->update();
-		(*it)->borders(ci::app::getWindowWidth(), ci::app::getWindowHeight());
-	}
+	for_each(particles.begin(), particles.end(), [&](Particle* p) { 
+		p->flock(particles); 
+		p->update(); 
+		p->borders(ci::app::getWindowWidth(), ci::app::getWindowHeight()); 
+	});
 }
 
 void ParticleSystem::draw(){
-	for (std::vector<Particle*>::iterator it = particles.begin();
-		it != particles.end();
-		++it){
-		(*it)->draw();
-	}
+	for_each(particles.begin(), particles.end(), [](Particle* p) {p->draw();});
 }
 
 void ParticleSystem::addParticle(Particle *particle){
