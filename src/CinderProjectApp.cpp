@@ -3,6 +3,7 @@
 #include "cinder/gl/gl.h"
 #include "cinder/Rand.h"
 #include "cinder/Log.h"
+#include "cinder/params/Params.h"
 
 #include "boost/range/irange.hpp"
 
@@ -22,14 +23,19 @@ class CinderProjectApp : public App {
 
 	void enableFileLogging();
 
+	
 private:
 	void setupParticleSystem(ParticleSystem&);
 	void setupForces();
+	void setupParams();
 
 	ParticleSystem mParticleSystem;
 
 	vec2 attrPosition;
 	float attrFactor, repulsionFactor, repulsionRadius;
+	params::InterfaceGl		mParams;
+
+	int mTotalParticles = 0;
 };
 
 void CinderProjectApp::setup()
@@ -40,6 +46,15 @@ void CinderProjectApp::setup()
 
 	setupParticleSystem(mParticleSystem);
 	setupForces();
+
+	setupParams();
+}
+
+void CinderProjectApp::setupParams(){
+	mParams = params::InterfaceGl("Parameters", ci::vec2(200, 150));
+	mParams.addSeparator();
+	mParams.addParam("Total particles", &mTotalParticles, "readonly=1");
+	mParams.maximize();
 }
 
 void CinderProjectApp::enableFileLogging()
@@ -52,7 +67,7 @@ void CinderProjectApp::setupForces()
 {
 	attrPosition = getWindowCenter();
 	attrFactor = 0.05f;
-	repulsionRadius = 100.f;
+	repulsionRadius = 50.f;
 	repulsionFactor = -.05f;
 }
 
@@ -89,12 +104,14 @@ void CinderProjectApp::mouseMove(MouseEvent event)
 void CinderProjectApp::update()
 {
 	mParticleSystem.update();
+	mTotalParticles = mParticleSystem.particles.size();
 }
 
 void CinderProjectApp::draw()
 {
 	gl::clear( Color( 0, 0, 0 ) ); 
 	gl::setMatricesWindow(getWindowWidth(), getWindowHeight());
+	mParams.draw();
 	mParticleSystem.draw();
 }
 
