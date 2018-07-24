@@ -81,7 +81,6 @@ ci::vec2 Particle::separate(std::vector<Particle*> & particles)
 	});
 	averageVec /= (float)particlesWithinDistance.size();
 	
-	
 	if (glm::length(averageVec) > 0)
 	{
 		averageVec = glm::normalize(averageVec);

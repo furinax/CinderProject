@@ -1,9 +1,12 @@
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
-#include "ParticleSystem.h"
 #include "cinder/Rand.h"
+#include "cinder/Log.h"
+
 #include "boost/range/irange.hpp"
+
+#include "ParticleSystem.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -16,6 +19,8 @@ class CinderProjectApp : public App {
 	void mouseMove(MouseEvent event) override;
 	void update() override;
 	void draw() override;
+
+	void enableFileLogging();
 
 private:
 	void setupParticleSystem(ParticleSystem&);
@@ -31,8 +36,16 @@ void CinderProjectApp::setup()
 {
 	setWindowSize(800, 600);
 
+	enableFileLogging();
+
 	setupParticleSystem(mParticleSystem);
 	setupForces();
+}
+
+void CinderProjectApp::enableFileLogging()
+{
+	log::makeLogger<log::LoggerFile>("/tmp/cinder/cinder.log");
+	CI_LOG_I("Logger Initiated");
 }
 
 void CinderProjectApp::setupForces()
