@@ -6,7 +6,7 @@
 class Particle
 {
 	public:
-		Particle(const ci::vec2 & position, float radius, float mass, float drag);
+		Particle(const std::map<std::string, std::string>& config, ci::vec2 init_pos, ci::vec2 init_Vel);
 
 		void update();
 		void draw();

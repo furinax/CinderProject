@@ -3,15 +3,18 @@
 #include <algorithm>
 #include <numeric>
 
-Particle::Particle(const ci::vec2 & position, float radius, float mass, float drag)
+Particle::Particle(const std::map<std::string, std::string>& config, 
+	ci::vec2 init_pos = ci::vec2(0), 
+	ci::vec2 init_vel= ci::vec2(0))
 {
-	this->position = position;
-	this->radius = radius;
-	this->mass = mass;
-	this->drag = drag;
-	this->maxspeed = 3.f;
-	this->maxforce = 0.5f;
-	this->velocity = ci::vec2(0);
+	
+	this->radius = std::stof(config.find("radius")->second);
+	this->mass = std::stof(config.find("mass")->second);
+	this->drag = std::stof(config.find("drag")->second);
+	this->maxspeed = std::stof(config.find("maxspeed")->second);
+	this->maxforce = std::stof(config.find("maxforce")->second);
+	this->position = init_pos;
+	this->velocity = init_vel;
 	prevPosition = position;
 	forces = cinder::vec2(0, 0);
 }
@@ -61,9 +64,8 @@ ci::vec2 Particle::steer(ci::vec2 target)
 
 ci::vec2 Particle::separate(std::vector<Particle*> & particles)
 {
-	ci::vec2 averageVec = (position - ci::app::getWindowCenter()) * -.005f;
+	ci::vec2 averageVec;
 	
-	averageVec = glm::rotate(averageVec, glm::radians(-45.f));
 	float targetSeparation = 30.f;
 
 	std::vector<Particle*> particlesWithinDistance;
@@ -99,7 +101,7 @@ ci::vec2 Particle::align(std::vector<Particle*>& particles)
 ci::vec2 Particle::cohesion(std::vector<Particle*>& particles)
 {
 	ci::vec2 averageVec;
-	float neighborDist = 50.f;
+	float neighborDist = 150.f;
 
 	std::vector<Particle*> particlesWithinDistance;
 	auto it = std::copy_if(particles.begin(), particles.end(), std::back_inserter(particlesWithinDistance), [&](Particle* p){

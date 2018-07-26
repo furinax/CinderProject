@@ -8,6 +8,7 @@
 #include "boost/range/irange.hpp"
 
 #include "ParticleSystem.h"
+#include "Config.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -25,6 +26,7 @@ class CinderProjectApp : public App {
 
 	
 private:
+	void setupConfig();
 	void setupParticleSystem(ParticleSystem&);
 	void setupForces();
 	void setupParams();
@@ -34,6 +36,7 @@ private:
 	vec2 attrPosition;
 	float attrFactor, repulsionFactor, repulsionRadius;
 	params::InterfaceGl		mParams;
+	Config mConfig;
 
 	int mTotalParticles = 0;
 };
@@ -44,10 +47,15 @@ void CinderProjectApp::setup()
 
 	enableFileLogging();
 
+	setupConfig();
 	setupParticleSystem(mParticleSystem);
 	setupForces();
-
 	setupParams();
+}
+
+void CinderProjectApp::setupConfig()
+{
+	mConfig.load();
 }
 
 void CinderProjectApp::setupParams(){
@@ -77,10 +85,8 @@ void CinderProjectApp::setupParticleSystem(ParticleSystem &ps)
 	{
 		float x = ci::randFloat(0.f, getWindowWidth());
 		float y = ci::randFloat(0.f, getWindowHeight());
-		float radius = 5.f;
-		float mass = 1.f;
-		float drag = 1.f;
-		Particle *particle = new Particle(vec2(x, y), radius, mass, drag);
+		
+		Particle *particle = new Particle(mConfig.config, vec2(x, y), vec2(0,0));
 		ps.addParticle(particle);
 	}
 }
