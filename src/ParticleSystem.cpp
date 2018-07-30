@@ -12,6 +12,10 @@ void ParticleSystem::update(){
 		p->update(); 
 		p->borders(ci::app::getWindowWidth(), ci::app::getWindowHeight()); 
 	});
+
+	std::vector<Particle*> deadParticles;
+	std::copy_if(particles.begin(), particles.end(), std::back_inserter(deadParticles), [](Particle* p){ return p->isDead; });
+	for_each(deadParticles.begin(), deadParticles.end(), [this](Particle* p){ this->destroyParticle(p); });
 }
 
 void ParticleSystem::draw(){
