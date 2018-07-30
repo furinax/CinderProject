@@ -10,6 +10,7 @@ class Particle
 
 		void update();
 		void draw();
+		void applyForce(ci::vec2 f);
 
 		void flock(std::vector<Particle*>& particles);
 		ci::vec2 steer(ci::vec2 target);
@@ -27,4 +28,12 @@ class Particle
 		float drag;
 		float maxspeed;
 		float maxforce;
+		float gravity;
+		int lifespan;
+		float jitter;
+		float separation;
+		float attraction;
+
+		int t;
+		bool isDead;
 };

@@ -13,10 +13,17 @@ Particle::Particle(const std::map<std::string, std::string>& config,
 	this->drag = std::stof(config.find("drag")->second);
 	this->maxspeed = std::stof(config.find("maxspeed")->second);
 	this->maxforce = std::stof(config.find("maxforce")->second);
+	this->gravity = std::stof(config.find("gravity")->second);
+	this->lifespan = std::stoi(config.find("lifespan")->second);
+	this->jitter = std::stof(config.find("jitter")->second);
+	this->separation = std::stof(config.find("separation")->second);
+	this->attraction = std::stof(config.find("attraction")->second);
 	this->position = init_pos;
 	this->velocity = init_vel;
 	prevPosition = position;
 	forces = cinder::vec2(0, 0);
+	t = 0;
+	isDead = false;
 }
 
 void Particle::update()
@@ -24,7 +31,11 @@ void Particle::update()
 	ci::vec2 temp = position;
 	position += velocity + forces / mass;
 	prevPosition = temp;
+	forces += ci::vec2(0, this->gravity);
 	forces = ci::vec2(0, 0);
+
+	if (t++ > lifespan)
+		isDead = true;
 }
 
 void Particle::draw()
@@ -47,6 +58,11 @@ void Particle::flock(std::vector<Particle*>& particles)
 	return;
 }
 
+void Particle::applyForce(ci::vec2 f)
+{
+	forces += f;
+}
+
 ci::vec2 Particle::steer(ci::vec2 target)
 {
 	ci::vec2 steerVector;
@@ -65,12 +81,10 @@ ci::vec2 Particle::steer(ci::vec2 target)
 ci::vec2 Particle::separate(std::vector<Particle*> & particles)
 {
 	ci::vec2 averageVec;
-	
-	float targetSeparation = 30.f;
 
 	std::vector<Particle*> particlesWithinDistance;
 	auto it = std::copy_if(particles.begin(), particles.end(), std::back_inserter(particlesWithinDistance), [&](Particle* p){
-		return glm::distance(position, p->position) < targetSeparation; });
+		return glm::distance(position, p->position) < separation; });
 	
 	if (particlesWithinDistance.size() == 0)
 		return averageVec;
@@ -101,12 +115,11 @@ ci::vec2 Particle::align(std::vector<Particle*>& particles)
 ci::vec2 Particle::cohesion(std::vector<Particle*>& particles)
 {
 	ci::vec2 averageVec;
-	float neighborDist = 150.f;
 
 	std::vector<Particle*> particlesWithinDistance;
 	auto it = std::copy_if(particles.begin(), particles.end(), std::back_inserter(particlesWithinDistance), [&](Particle* p){
 							float d = glm::distance(position, p->position);
-							return d < neighborDist; });
+							return d < attraction; });
 
 	averageVec = std::accumulate(particlesWithinDistance.begin(), particlesWithinDistance.end(), ci::vec2(0), [](ci::vec2 x, Particle* p){ x += p->position; return x; });
 
