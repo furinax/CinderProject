@@ -76,7 +76,7 @@ void CinderProjectApp::setupForces()
 	attrPosition = getWindowCenter();
 	attrFactor = 0.05f;
 	repulsionRadius = 50.f;
-	repulsionFactor = -.05f;
+	repulsionFactor = -.005f;
 }
 
 void CinderProjectApp::setupParticleSystem(ParticleSystem &ps)

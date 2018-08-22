@@ -34,8 +34,8 @@ void Particle::update()
 	forces += ci::vec2(0, this->gravity);
 	forces = ci::vec2(0, 0);
 
-	if (t++ > lifespan)
-		isDead = true;
+	//if (t++ > lifespan)
+	//	isDead = true;
 }
 
 void Particle::draw()
