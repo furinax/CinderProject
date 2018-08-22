@@ -24,6 +24,11 @@ Particle::Particle(const std::map<std::string, std::string>& config,
 	forces = cinder::vec2(0, 0);
 	t = 0;
 	isDead = false;
+	isDebug = false;
+
+	color_start = ci::Color(0.f, 0.f, 1.f);
+	color_effect = ci::Color(1.f, .7, 0.f);
+	color_curr = ci::Color(color_start);
 }
 
 void Particle::update()
@@ -33,17 +38,26 @@ void Particle::update()
 	prevPosition = temp;
 	forces += ci::vec2(0, this->gravity);
 	forces = ci::vec2(0, 0);
-
+	color_curr.r = glm::sin(position.x / ci::app::getWindowWidth() * 3.1415f);
 	//if (t++ > lifespan)
-	//	isDead = true;
+	//	isDead = true;	
 }
 
 void Particle::draw()
 {
-	ci::gl::color(1.f, 1.f, 1.f);
-	ci::gl::drawSolidCircle(position, radius);
-	ci::gl::color(1.f, 0.f, 0.f);
-	ci::gl::drawLine(position, position + (position - prevPosition) * (radius + 5.f));
+	if (isDebug)
+	{
+		ci::gl::color(color_curr);
+		ci::gl::drawSolidCircle(position, radius);
+		ci::gl::color(1.f, 0.f, 0.f);
+		ci::gl::drawLine(position, position + (position - prevPosition) * (radius + 5.f));
+	}
+	else
+	{
+		ci::gl::color(color_curr);
+		ci::gl::drawSolidCircle(position, radius);
+		ci::gl::drawLine(position, position - (position - prevPosition) * (radius + 5.f));
+	}
 }
 
 void Particle::flock(std::vector<Particle*>& particles)

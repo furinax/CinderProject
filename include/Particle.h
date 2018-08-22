@@ -33,6 +33,12 @@ class Particle
 		float jitter;
 		float separation;
 		float attraction;
+		float effect;
+		bool isDebug;
+
+		ci::Color color_start;
+		ci::Color color_effect;
+		ci::Color color_curr;
 
 		int t;
 		bool isDead;
