@@ -2,13 +2,14 @@
 
 #include "cinder/gl/gl.h"
 #include "cinder/Vector.h"
+#include "UpdateParams.h"
 
 class Particle
 {
 	public:
 		Particle(const std::map<std::string, std::string>& config, ci::vec2 init_pos, ci::vec2 init_Vel);
 
-		void update();
+		void update(const UpdateParams&);
 		void draw();
 		void applyForce(ci::vec2 f);
 

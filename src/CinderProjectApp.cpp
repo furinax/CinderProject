@@ -9,6 +9,7 @@
 
 #include "ParticleSystem.h"
 #include "Config.h"
+#include "UpdateParams.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -37,6 +38,7 @@ private:
 	float attrFactor, repulsionFactor, repulsionRadius;
 	params::InterfaceGl		mParams;
 	Config mConfig;
+	UpdateParams mUpdateParams;
 
 	int mTotalParticles = 0;
 };
@@ -105,11 +107,12 @@ void CinderProjectApp::mouseMove(MouseEvent event)
 {
 	attrPosition.x = event.getPos().x;
 	attrPosition.y = event.getPos().y;
+	mUpdateParams.attrPosition = attrPosition;
 }
 
 void CinderProjectApp::update()
 {
-	mParticleSystem.update();
+	mParticleSystem.update(mUpdateParams);
 	mTotalParticles = mParticleSystem.particles.size();
 }
 

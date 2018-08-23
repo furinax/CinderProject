@@ -6,10 +6,10 @@ ParticleSystem::~ParticleSystem(){
 	particles.clear();
 }
 
-void ParticleSystem::update(){
+void ParticleSystem::update(const UpdateParams& updateParams){
 	for_each(particles.begin(), particles.end(), [&](Particle* p) { 
 		p->flock(particles); 
-		p->update(); 
+		p->update(updateParams);
 		p->borders(ci::app::getWindowWidth(), ci::app::getWindowHeight()); 
 	});
 

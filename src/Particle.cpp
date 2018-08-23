@@ -31,14 +31,14 @@ Particle::Particle(const std::map<std::string, std::string>& config,
 	color_curr = ci::Color(color_start);
 }
 
-void Particle::update()
+void Particle::update(const UpdateParams& updateParams)
 {
 	ci::vec2 temp = position;
 	position += velocity + forces / mass;
 	prevPosition = temp;
 	forces += ci::vec2(0, this->gravity);
 	forces = ci::vec2(0, 0);
-	color_curr.r = glm::sin(position.x / ci::app::getWindowWidth() * 3.1415f);
+	color_curr = glm::distance(position, updateParams.attrPosition) < separation ? color_effect : (color_start + .98*(color_curr - color_start));
 	//if (t++ > lifespan)
 	//	isDead = true;	
 }
@@ -56,7 +56,8 @@ void Particle::draw()
 	{
 		ci::gl::color(color_curr);
 		ci::gl::drawSolidCircle(position, radius);
-		ci::gl::drawLine(position, position - (position - prevPosition) * (radius + 5.f));
+		if (glm::distance(position, prevPosition) < ci::app::getWindowHeight())
+			ci::gl::drawLine(position, prevPosition);
 	}
 }
 
